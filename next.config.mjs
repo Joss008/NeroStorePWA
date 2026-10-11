@@ -37,8 +37,6 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
     disableDevLogs: true,
-    navigateFallback: "/admin/login",
-    navigateFallbackDenylist: [/^\/api/],
     runtimeCaching: [
       {
         urlPattern: ({ request }) =>
