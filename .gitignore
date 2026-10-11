@@ -1,0 +1,10 @@
+node_modules
+.next
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+# PWA build artifacts
+public/sw.js
+public/swe-worker-*.js
+public/workbox-*.js
