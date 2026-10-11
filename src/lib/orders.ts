@@ -5,6 +5,12 @@ export type { Order, OrderStatus };
 
 const STORAGE_KEY = "blox-orders";
 
+const API_ENDPOINTS = [
+  "/admin/api/orders",
+  "/api/orders",
+  "http://localhost:3001/admin/api/orders",
+];
+
 function readOrders(): Order[] {
   if (typeof window === "undefined") return [];
   try {
@@ -43,11 +49,43 @@ export function getOrders(phone?: string): Order[] {
   return all;
 }
 
-export function updateOrderStatus(code: string, status: OrderStatus): void {
+export async function fetchOrders(phone?: string): Promise<Order[]> {
+  for (const ep of API_ENDPOINTS) {
+    try {
+      const url = phone ? `${ep}?phone=${encodeURIComponent(phone)}` : ep;
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          writeOrders(data as Order[]);
+          return data as Order[];
+        }
+      }
+    } catch {
+      // probar siguiente
+    }
+  }
+  return getOrders(phone);
+}
+
+export async function updateOrderStatus(code: string, status: OrderStatus): Promise<void> {
   const all = readOrders();
   const updated = all.map((o) => (o.code === code ? { ...o, status } : o));
   writeOrders(updated);
   notifyOrdersChanged(updated);
+
+  for (const ep of API_ENDPOINTS) {
+    try {
+      const res = await fetch(ep, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, status }),
+      });
+      if (res.ok) break;
+    } catch {
+      // probar siguiente
+    }
+  }
 }
 
 export function getOrderByCode(code: string): Order | undefined {

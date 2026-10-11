@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  getOrders,
+  fetchOrders,
   updateOrderStatus,
   formatOrderDate,
   statusLabels,
@@ -21,15 +21,32 @@ export default function PedidosPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setOrders(getOrders());
+    let cancelled = false;
+
+    fetchOrders().then((remote) => {
+      if (!cancelled) setOrders(remote);
+    });
+
+    const poll = setInterval(() => {
+      fetchOrders().then((remote) => {
+        if (!cancelled) setOrders(remote);
+      });
+    }, 20000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(poll);
+    };
   }, []);
 
-  function refresh() {
-    setOrders(getOrders());
+  async function refresh() {
+    const remote = await fetchOrders();
+    setOrders(remote);
   }
 
-  function handleStatusChange(code: string, newStatus: Order["status"]) {
-    updateOrderStatus(code, newStatus);
+  async function handleStatusChange(code: string, newStatus: Order["status"]) {
+    setOrders((prev) => prev.map((o) => (o.code === code ? { ...o, status: newStatus } : o)));
+    await updateOrderStatus(code, newStatus);
     refresh();
   }
 
