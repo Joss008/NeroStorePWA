@@ -192,7 +192,13 @@ export function useMergedProducts(staticProducts: Product[]) {
             const res = await fetch(ep, { cache: "no-store" });
             if (res.ok) {
               const data = await res.json();
-              if (data.updatedAt && Array.isArray(data.custom) && Array.isArray(data.hidden)) {
+              if (!data.updatedAt) {
+                const localCustom = getCustomProducts();
+                const localHidden = getHiddenIds();
+                if (localCustom.length > 0 || localHidden.length > 0) {
+                  syncToApi(localCustom, localHidden);
+                }
+              } else if (Array.isArray(data.custom) && Array.isArray(data.hidden)) {
                 writeJSON(CUSTOM_KEY, data.custom);
                 writeJSON(HIDDEN_KEY, data.hidden);
                 setProducts(getMergedProducts(staticProducts));
