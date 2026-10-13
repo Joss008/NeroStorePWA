@@ -58,7 +58,7 @@ export default function AdminGroupLayout({ children }: { children: React.ReactNo
           </a>
         </div>
       </header>
-      <main className="flex-1 p-4 sm:p-6 md:p-8 pb-28 max-w-5xl mx-auto w-full overflow-auto">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 md:p-8 pb-8 pl-16 sm:pl-20 md:pl-24 max-w-5xl mx-auto w-full overflow-auto">{children}</main>
       <AdminDock />
     </div>
   );
