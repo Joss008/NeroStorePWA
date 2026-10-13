@@ -36,8 +36,8 @@ const config: Config = {
         common: "#9ca3af",
       },
       fontFamily: {
-        editorial: ["var(--font-cormorant)", "Georgia", "serif"],
-        body: ["var(--font-inter)", "system-ui", "sans-serif"],
+        editorial: ["Arial", "Helvetica Neue", "Helvetica", "sans-serif"],
+        body: ["Arial", "Helvetica Neue", "Helvetica", "sans-serif"],
       },
       keyframes: {
         glow: {

@@ -6,6 +6,10 @@
   --color-bg: #050505;
   --color-accent: #ef4444;
   --color-accent-light: #f87171;
+  --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-body: var(--font-sans);
+  --font-inter: var(--font-sans);
+  --font-cormorant: var(--font-sans);
 }
 
 * {
@@ -15,7 +19,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  font-family: var(--font-body), system-ui, sans-serif;
+  font-family: var(--font-sans);
   background: var(--color-bg);
   color: white;
   -webkit-font-smoothing: antialiased;

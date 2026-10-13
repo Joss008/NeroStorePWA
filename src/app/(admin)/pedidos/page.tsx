@@ -76,10 +76,7 @@ export default function PedidosPage() {
           <span className="text-xl">📋</span>
         </div>
         <div>
-          <h1
-            className="text-2xl font-normal text-white"
-            style={{ fontFamily: "var(--font-cormorant)" }}
-          >
+          <h1 className="text-2xl font-bold text-white">
             Pedidos
           </h1>
           <p className="text-sm text-white/40">Gestiona los pedidos de los clientes</p>
