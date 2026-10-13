@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import AdminSidebar from "@/components/AdminSidebar";
+import AdminDock from "@/components/Dock";
 import { isAdminAuthenticated } from "@/lib/admin";
 
 export default function AdminGroupLayout({ children }: { children: React.ReactNode }) {
@@ -43,26 +44,6 @@ export default function AdminGroupLayout({ children }: { children: React.ReactNo
       <div className="flex-1 min-w-0">
         <header className="md:hidden sticky top-0 z-40 bg-scene-900/90 backdrop-blur-xl border-b border-white/5">
           <div className="flex items-center justify-between px-4 h-14">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="text-white/70 hover:text-white p-2 -ml-2"
-              aria-label="Abrir menú"
-            >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
             <Link href="/dashboard" className="flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-xs glow-red">
                 BF
@@ -74,11 +55,19 @@ export default function AdminGroupLayout({ children }: { children: React.ReactNo
                 PWA Blox
               </span>
             </Link>
-            <span className="w-9 h-9" aria-hidden />
+            <a
+              href={process.env.NEXT_PUBLIC_CATALOG_URL || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/40 hover:text-white text-xs"
+            >
+              Catálogo ↗
+            </a>
           </div>
         </header>
-        <main className="p-4 sm:p-6 md:p-8 overflow-auto">{children}</main>
+        <main className="p-4 sm:p-6 md:p-8 overflow-auto pb-24 md:pb-8">{children}</main>
       </div>
+      <AdminDock />
     </div>
   );
 }
