@@ -23,6 +23,7 @@ import {
   RARITY_GRADIENTS,
 } from "@/lib/useProducts";
 import { formatCurrency, CURRENCY_LABELS, CURRENCY_FLAGS } from "@/lib/format";
+import AnimatedList from "@/components/AnimatedList";
 
 interface FormState {
   name: string;
@@ -462,6 +463,112 @@ export default function ProductosPage() {
 
   const previewImage = form.imageData || form.imageUrl;
 
+  function renderProductRow(p: Product) {
+    const preview = p.imageData || p.imageUrl;
+    const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full min-w-0">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 overflow-hidden border border-white/10"
+            style={preview ? undefined : { background: p.gradient }}
+          >
+            {preview ? (
+              <img src={preview} alt={p.name} className="w-full h-full object-cover" />
+            ) : (
+              p.emoji
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="font-semibold text-white text-sm truncate">{p.name}</p>
+              {p.popular && (
+                <span className="text-amber-400 text-xs flex-shrink-0" title="Destacado">
+                  ★
+                </span>
+              )}
+              {!p.inStock && (
+                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/30 flex-shrink-0">
+                  Agotado
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded-full bg-white/5 text-white/60 border border-white/10">
+                {p.category}
+              </span>
+              <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+                {p.rarity}
+              </span>
+              <span className="sm:hidden text-[11px] text-white/50 truncate">
+                {formatCurrency(p.prices.PEN, "PEN")} · {formatCurrency(p.prices.MXN, "MXN")} ·{" "}
+                {formatCurrency(p.prices.COP, "COP")}
+              </span>
+            </div>
+          </div>
+
+          <div className="hidden sm:block text-right flex-shrink-0 pl-2">
+            <p className="font-bold text-accent text-sm leading-tight">{formatCurrency(p.prices.PEN, "PEN")}</p>
+            <p className="text-[11px] text-white/40">
+              {formatCurrency(p.prices.MXN, "MXN")} · {formatCurrency(p.prices.COP, "COP")}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-shrink-0" onClick={stop}>
+          <button
+            onClick={() => handleQuickToggleStock(p)}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
+              p.inStock
+                ? "bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500/25"
+                : "bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25"
+            }`}
+            title="Clic para cambiar estado de stock al instante"
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${p.inStock ? "bg-green-400" : "bg-red-400"}`} />
+            <span>{p.inStock ? "Activo" : "Agotado"}</span>
+          </button>
+
+          <button
+            onClick={() => handleQuickTogglePopular(p)}
+            className={`p-1.5 rounded-lg transition-colors ${
+              p.popular
+                ? "text-amber-400 bg-amber-400/10 hover:bg-amber-400/20"
+                : "text-white/20 hover:text-amber-400/60 hover:bg-white/5"
+            }`}
+            title={p.popular ? "Quitar de destacados" : "Marcar como destacado (Popular)"}
+          >
+            <span className="text-sm leading-none">★</span>
+          </button>
+
+          <button
+            onClick={() => openEdit(p)}
+            className="text-white/40 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors"
+            title="Editar detalles del producto"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => setProductToDelete(p)}
+            className="text-white/40 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-lg transition-colors"
+            title="Eliminar producto"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Toast flotante de retroalimentación */}
@@ -672,233 +779,18 @@ export default function ProductosPage() {
           </button>
         </div>
       ) : (
-        <>
-          {/* VISTA MÓVIL (Tarjetas Modernas con Toggles Rápidos) */}
-          <div className="lg:hidden space-y-3">
-            {filtered.map((p) => {
-              const preview = p.imageData || p.imageUrl;
-              return (
-                <div
-                  key={p.id}
-                  className="bg-scene-900 border border-white/5 rounded-2xl p-4 space-y-3 transition-colors hover:border-white/10"
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden border border-white/10"
-                      style={preview ? undefined : { background: p.gradient }}
-                    >
-                      {preview ? (
-                        <img src={preview} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        p.emoji
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-white text-sm truncate">{p.name}</p>
-                        {/* 1-Click Toggle Popular en móvil */}
-                        <button
-                          onClick={() => handleQuickTogglePopular(p)}
-                          className={`p-1 rounded-lg transition-colors ${
-                            p.popular
-                              ? "text-amber-400 bg-amber-400/10"
-                              : "text-white/20 hover:text-amber-400/50"
-                          }`}
-                          title={p.popular ? "Quitar de destacados" : "Destacar producto"}
-                        >
-                          ★
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                        <span className="text-[10px] font-medium uppercase px-2 py-0.5 rounded-full bg-white/5 text-white/70 border border-white/10">
-                          {p.category}
-                        </span>
-                        <span className="text-[10px] font-medium uppercase px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
-                          {p.rarity}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Precios en móvil */}
-                  <div className="grid grid-cols-3 gap-2 bg-scene-950/70 border border-white/5 rounded-xl p-2.5 text-center">
-                    <div>
-                      <span className="text-[9px] text-white/40 block font-medium">PEN</span>
-                      <span className="text-xs font-bold text-accent">{formatCurrency(p.prices.PEN, "PEN")}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-white/40 block font-medium">MXN</span>
-                      <span className="text-xs font-medium text-white/80">{formatCurrency(p.prices.MXN, "MXN")}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-white/40 block font-medium">COP</span>
-                      <span className="text-xs font-medium text-white/80">{formatCurrency(p.prices.COP, "COP")}</span>
-                    </div>
-                  </div>
-
-                  {/* Barra de Acciones y Toggle de Stock */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
-                    {/* Toggle rápido de Stock */}
-                    <button
-                      onClick={() => handleQuickToggleStock(p)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                        p.inStock
-                          ? "bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500/25"
-                          : "bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25"
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${p.inStock ? "bg-green-400" : "bg-red-400"}`} />
-                      <span>{p.inStock ? "En Stock" : "Agotado"}</span>
-                      <span className="text-[10px] text-white/40 ml-0.5">(Clic)</span>
-                    </button>
-
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => openEdit(p)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/80 bg-white/5 hover:bg-white/10 transition-colors"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => setProductToDelete(p)}
-                        className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-                        title="Eliminar producto"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* VISTA DESKTOP (Tabla Completa con Interruptores Rápidos) */}
-          <div className="hidden lg:block bg-scene-900 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/5 bg-scene-950/60 text-white/50 text-[11px] uppercase tracking-wider">
-                  <th className="text-left px-5 py-3.5 font-semibold">Producto</th>
-                  <th className="text-left px-4 py-3.5 font-semibold">Categoría / Rareza</th>
-                  <th className="text-left px-4 py-3.5 font-semibold">Precios (PEN / MXN / COP)</th>
-                  <th className="text-center px-4 py-3.5 font-semibold">Estado Stock</th>
-                  <th className="text-center px-4 py-3.5 font-semibold">Destacado</th>
-                  <th className="text-right px-5 py-3.5 font-semibold">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filtered.map((p) => {
-                  const preview = p.imageData || p.imageUrl;
-                  return (
-                    <tr
-                      key={p.id}
-                      className="hover:bg-white/[0.02] transition-colors group"
-                    >
-                      {/* Producto */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0 overflow-hidden border border-white/10"
-                            style={preview ? undefined : { background: p.gradient }}
-                          >
-                            {preview ? (
-                              <img src={preview} alt={p.name} className="w-full h-full object-cover" />
-                            ) : (
-                              p.emoji
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-white text-sm truncate">{p.name}</p>
-                            <p className="text-xs text-white/40 truncate max-w-xs">{p.shortDescription}</p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Categoría / Rareza */}
-                      <td className="px-4 py-3.5">
-                        <div className="space-y-1">
-                          <span className="inline-block text-[10px] font-medium uppercase px-2 py-0.5 rounded-full bg-white/5 text-white/70 border border-white/10">
-                            {p.category}
-                          </span>
-                          <p className="text-[11px] text-accent font-medium">{p.rarity}</p>
-                        </div>
-                      </td>
-
-                      {/* Precios */}
-                      <td className="px-4 py-3.5">
-                        <div>
-                          <p className="font-bold text-accent text-sm">{formatCurrency(p.prices.PEN, "PEN")}</p>
-                          <p className="text-[11px] text-white/40">
-                            {formatCurrency(p.prices.MXN, "MXN")} · {formatCurrency(p.prices.COP, "COP")}
-                          </p>
-                        </div>
-                      </td>
-
-                      {/* 1-Click Stock Toggle Pill */}
-                      <td className="px-4 py-3.5 text-center">
-                        <button
-                          onClick={() => handleQuickToggleStock(p)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                            p.inStock
-                              ? "bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500/25"
-                              : "bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25"
-                          }`}
-                          title="Clic para cambiar estado de stock al instante"
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${p.inStock ? "bg-green-400" : "bg-red-400"}`} />
-                          <span>{p.inStock ? "Activo" : "Agotado"}</span>
-                        </button>
-                      </td>
-
-                      {/* 1-Click Popular Star Toggle */}
-                      <td className="px-4 py-3.5 text-center">
-                        <button
-                          onClick={() => handleQuickTogglePopular(p)}
-                          className={`p-1.5 rounded-xl transition-all ${
-                            p.popular
-                              ? "text-amber-400 bg-amber-400/10 hover:bg-amber-400/20"
-                              : "text-white/20 hover:text-amber-400/60 hover:bg-white/5"
-                          }`}
-                          title={p.popular ? "Quitar de destacados" : "Marcar como destacado (Popular)"}
-                        >
-                          <span className="text-base leading-none">★</span>
-                        </button>
-                      </td>
-
-                      {/* Acciones */}
-                      <td className="px-5 py-3.5 text-right">
-                        <div className="inline-flex items-center gap-1">
-                          <button
-                            onClick={() => openEdit(p)}
-                            className="text-white/40 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
-                            title="Editar detalles del producto"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => setProductToDelete(p)}
-                            className="text-white/40 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
-                            title="Eliminar producto"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6" />
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
+        <AnimatedList
+          items={filtered}
+          animation="pop"
+          stagger={0.05}
+          theme="dark"
+          width="100%"
+          maxHeight="min(72vh, 780px)"
+          radius={16}
+          gap={10}
+          onItemSelect={(p) => openEdit(p)}
+          renderItem={(p) => renderProductRow(p)}
+        />
       )}
 
       {/* ============================================================ */}
