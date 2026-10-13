@@ -43,6 +43,13 @@
   text-decoration: none;
 }
 
+.dock-item::before {
+  content: "";
+  position: absolute;
+  inset: -14px -10px;
+  z-index: 0;
+}
+
 .dock-item:hover,
 .dock-item:focus-visible {
   z-index: 1;
@@ -53,6 +60,17 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.dock-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 20px;
+  background: radial-gradient(closest-side, rgba(239, 68, 68, 0.5), rgba(239, 68, 68, 0) 100%);
+  opacity: 0;
+  filter: blur(10px);
+  pointer-events: none;
+  will-change: opacity;
 }
 
 .dock-face {
@@ -68,7 +86,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 3px 8px -2px rgba(0, 0, 0, 0.6);
   transform-origin: center center;
-  transition: filter 0.15s ease;
+  will-change: transform;
 }
 
 .dock-face svg {
@@ -78,7 +96,6 @@
 
 .dock-item:active .dock-face {
   filter: brightness(0.7);
-  transition-duration: 0s;
 }
 
 .dock-item:focus-visible .dock-face {

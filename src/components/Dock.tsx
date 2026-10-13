@@ -71,7 +71,8 @@ function useVerticalDockMotion(
   distance: number,
   bounce: boolean
 ) {
-  const wakeRef = useRef<(() => void) | null>(null);
+  const baseRef = useRef(base);
+  baseRef.current = base;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -84,7 +85,7 @@ function useVerticalDockMotion(
     let last = 0;
     let alive = true;
 
-    const spring = { mass: 0.1, stiffness: 150, damping: 12 };
+    const spring = { mass: 0.1, stiffness: 160, damping: 13 };
 
     const entry = (index: number) => {
       let state = motion.get(index);
@@ -120,7 +121,8 @@ function useVerticalDockMotion(
         if (!node) continue;
         const state = entry(index);
         const reach = focus === null ? 1 : Math.abs(focus - rest[index]) / distance;
-        const target = base + (peak - base) * (reach < 1 ? Math.cos((reach * Math.PI) / 2) ** 2 : 0);
+        const falloff = reach < 1 ? Math.cos((reach * Math.PI) / 2) ** 2 : 0;
+        const target = base + (peak - base) * falloff;
         if (reduce) {
           state.size = target;
           state.velocity = 0;
@@ -136,11 +138,19 @@ function useVerticalDockMotion(
         } else {
           moving = true;
         }
+
         const size = Math.max(1, state.size);
-        node.style.width = `${size}px`;
-        node.style.height = `${size}px`;
+        const ratio = size / base;
+        const glow = Math.max(0, Math.min(1, (size - base) / (peak - base)));
+
         const face = node.querySelector(".dock-face") as HTMLElement | null;
-        if (face) face.style.transform = `scale(${size / base})`;
+        if (face) {
+          face.style.transform = `scale(${ratio}) translateX(${glow * 3}px)`;
+        }
+        const glowEl = node.querySelector(".dock-glow") as HTMLElement | null;
+        if (glowEl) {
+          glowEl.style.opacity = String(glow * 0.55);
+        }
       }
 
       if (moving) raf = requestAnimationFrame(tick);
@@ -165,14 +175,12 @@ function useVerticalDockMotion(
     root.addEventListener("pointermove", onMove);
     root.addEventListener("pointerleave", onLeave);
     wake();
-    wakeRef.current = wake;
 
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
       root.removeEventListener("pointermove", onMove);
       root.removeEventListener("pointerleave", onLeave);
-      wakeRef.current = null;
     };
   }, [count, base, peak, gap, distance, rootRef, itemRefs]);
 
@@ -182,8 +190,7 @@ function useVerticalDockMotion(
       if (!node) return;
       if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
       if (!bounce) return;
-      const size = parseFloat(node.style.width || "44");
-      const height = size * HOP;
+      const height = baseRef.current * HOP;
       node.animate(
         [
           { transform: "translateX(0)" },
@@ -211,39 +218,16 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   const base = 44;
-  const peak = 60;
+  const peak = 62;
   const gap = 6;
-  const distance = 150;
+  const distance = 130;
 
   const items: DockItemData[] = [
-    {
-      icon: <IconDashboard />,
-      label: "Dashboard",
-      path: "/dashboard",
-      showDot: pathname === "/dashboard",
-      separatorBefore: false,
-    },
-    {
-      icon: <IconOrders />,
-      label: "Pedidos",
-      path: "/pedidos",
-      showDot: pathname === "/pedidos",
-      separatorBefore: false,
-    },
-    {
-      icon: <IconProducts />,
-      label: "Productos",
-      path: "/productos",
-      showDot: pathname === "/productos",
-      separatorBefore: false,
-    },
+    { icon: <IconDashboard />, label: "Dashboard", path: "/dashboard", showDot: pathname === "/dashboard" },
+    { icon: <IconOrders />, label: "Pedidos", path: "/pedidos", showDot: pathname === "/pedidos" },
+    { icon: <IconProducts />, label: "Productos", path: "/productos", showDot: pathname === "/productos" },
     { separatorBefore: true, icon: null, label: "" },
-    {
-      icon: <IconCatalog />,
-      label: "Catálogo",
-      href: process.env.NEXT_PUBLIC_CATALOG_URL || "#",
-      separatorBefore: false,
-    },
+    { icon: <IconCatalog />, label: "Catálogo", href: process.env.NEXT_PUBLIC_CATALOG_URL || "#" },
     {
       icon: <IconLogout />,
       label: "Salir",
@@ -252,7 +236,6 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
         router.push("/login");
         router.refresh();
       },
-      separatorBefore: false,
     },
   ];
 
@@ -278,11 +261,10 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
 
         const inner = (
           <>
+            <span className="dock-glow" aria-hidden="true" />
             <span className="dock-tile">
               <span className="dock-face">{item.icon}</span>
-              {item.badge !== undefined && (
-                <span className="dock-badge">{item.badge}</span>
-              )}
+              {item.badge !== undefined && <span className="dock-badge">{item.badge}</span>}
             </span>
             {item.showDot && <span className="dock-dot" aria-hidden="true" />}
             {hovered === idx && <span className="dock-label">{item.label}</span>}
