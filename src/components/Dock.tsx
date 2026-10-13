@@ -201,12 +201,13 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
   const gap = 8;
   const distance = 160;
 
-  const { hop } = useDockMotion(rootRef, itemRefs, 4, base, peak, gap, distance, { mass: 0.1, stiffness: 150, damping: 12 }, true);
+  const { hop } = useDockMotion(rootRef, itemRefs, 5, base, peak, gap, distance, { mass: 0.1, stiffness: 150, damping: 12 }, true);
 
   const items: DockItem[] = [
     { icon: "📊", label: "Dashboard", path: "/dashboard" },
     { icon: "📋", label: "Pedidos", path: "/pedidos" },
     { icon: "📦", label: "Productos", path: "/productos" },
+    { icon: "🏠", label: "Catálogo", href: process.env.NEXT_PUBLIC_CATALOG_URL || "#" },
     { icon: "🚪", label: "Salir", onClick: () => { adminLogout(); router.push("/login"); router.refresh(); } },
   ];
 
@@ -243,14 +244,32 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
               aria-current={isActive ? "page" : undefined}
               onPointerEnter={() => setHovered(index)}
               onPointerLeave={() => setHovered(null)}
-              onClick={(e) => {
+              onClick={() => {
                 hop(index);
                 onNavigate?.();
-                void e;
               }}
             >
               {inner}
             </Link>
+          );
+        }
+
+        if (item.href) {
+          return (
+            <a
+              key={item.label}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              ref={(node) => { itemRefs.current[index] = node; }}
+              className={btnClass}
+              aria-label={item.label}
+              onPointerEnter={() => setHovered(index)}
+              onPointerLeave={() => setHovered(null)}
+              onClick={() => hop(index)}
+            >
+              {inner}
+            </a>
           );
         }
 
