@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { adminLogout } from "@/lib/admin";
+import { catalogProductsUrl } from "@/lib/catalog";
 import "./Dock.css";
 
 const HOP = 0.4;
@@ -227,7 +228,7 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
     { icon: <IconOrders />, label: "Pedidos", path: "/pedidos", showDot: pathname === "/pedidos" },
     { icon: <IconProducts />, label: "Productos", path: "/productos", showDot: pathname === "/productos" },
     { separatorBefore: true, icon: null, label: "" },
-    { icon: <IconCatalog />, label: "Catálogo", href: process.env.NEXT_PUBLIC_CATALOG_URL || "#" },
+    { icon: <IconCatalog />, label: "Catálogo", href: catalogProductsUrl() },
     {
       icon: <IconLogout />,
       label: "Salir",

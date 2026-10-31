@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { adminLogout } from "@/lib/admin";
+import { catalogProductsUrl } from "@/lib/catalog";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: "📊" },
@@ -79,7 +80,7 @@ export default function AdminSidebar({ mobileOpen = false, onClose }: Props) {
 
       <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
         <a
-          href={process.env.NEXT_PUBLIC_CATALOG_URL || "#"}
+          href={catalogProductsUrl()}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/50 hover:bg-white/5 hover:text-white transition-all"

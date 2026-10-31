@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import AdminDock from "@/components/Dock";
 import { isAdminAuthenticated } from "@/lib/admin";
+import { catalogProductsUrl } from "@/lib/catalog";
 
 export default function AdminGroupLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function AdminGroupLayout({ children }: { children: React.ReactNo
             </span>
           </Link>
           <a
-            href={process.env.NEXT_PUBLIC_CATALOG_URL || "#"}
+            href={catalogProductsUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="text-white/40 hover:text-white text-xs"
