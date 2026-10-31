@@ -47,11 +47,16 @@ export default function MediosPagoPage() {
     const cached = readStoredPaymentMethods();
     if (cached.length > 0) setMethods(cached);
 
-    fetchRemotePaymentMethods().then((remote) => {
+    fetchRemotePaymentMethods().then(async (remote) => {
       if (cancelled) return;
-      if (remote) {
+      if (remote && remote.length > 0) {
         setMethods(remote);
         writeStoredPaymentMethods(remote);
+      } else {
+        const local = readStoredPaymentMethods();
+        if (local.length > 0) {
+          await saveRemotePaymentMethods(local);
+        }
       }
     });
 
