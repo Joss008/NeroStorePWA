@@ -34,6 +34,8 @@ export interface Order {
   currency: string;
   status: OrderStatus;
   paymentMethod: string;
+  paymentMethodId?: string;
+  receiptImageData?: string;
   notes: string;
   createdAt: string;
 }

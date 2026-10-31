@@ -43,6 +43,14 @@ const IconCatalog = ({ className }: IconProps) => (
   </svg>
 );
 
+const IconPayment = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <line x1="2" y1="10" x2="22" y2="10" />
+    <line x1="6" y1="15" x2="10" y2="15" />
+  </svg>
+);
+
 const IconLogout = ({ className }: IconProps) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -227,6 +235,7 @@ export default function AdminDock({ onNavigate }: AdminDockProps) {
     { icon: <IconDashboard />, label: "Dashboard", path: "/dashboard", showDot: pathname === "/dashboard" },
     { icon: <IconOrders />, label: "Pedidos", path: "/pedidos", showDot: pathname === "/pedidos" },
     { icon: <IconProducts />, label: "Productos", path: "/productos", showDot: pathname === "/productos" },
+    { icon: <IconPayment />, label: "Medios de pago", path: "/medios-pago", showDot: pathname === "/medios-pago" },
     { separatorBefore: true, icon: null, label: "" },
     { icon: <IconCatalog />, label: "Catálogo", href: catalogProductsUrl() },
     {

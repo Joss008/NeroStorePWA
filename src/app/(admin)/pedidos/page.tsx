@@ -19,6 +19,16 @@ export default function PedidosPage() {
   const [filter, setFilter] = useState<Order["status"] | "ALL">("ALL");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [lightbox, setLightbox] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightbox(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,6 +135,27 @@ export default function PedidosPage() {
         </div>
       </div>
 
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setLightbox(null)}
+        >
+          <img
+            src={lightbox}
+            alt="Comprobante de pago"
+            className="max-h-[85vh] max-w-full rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition-colors"
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <div className="bg-scene-900 border border-white/5 rounded-2xl p-12 text-center">
           <div className="w-16 h-16 rounded-full bg-scene-800 flex items-center justify-center mx-auto mb-4 text-3xl">
@@ -146,6 +177,7 @@ export default function PedidosPage() {
               expanded={expanded === order.code}
               onToggle={() => setExpanded(expanded === order.code ? null : order.code)}
               onStatusChange={(status) => handleStatusChange(order.code, status)}
+              onOpenReceipt={setLightbox}
             />
           ))}
         </div>
@@ -159,9 +191,10 @@ interface OrderRowProps {
   expanded: boolean;
   onToggle: () => void;
   onStatusChange: (s: Order["status"]) => void;
+  onOpenReceipt: (src: string) => void;
 }
 
-function OrderRow({ order, expanded, onToggle, onStatusChange }: OrderRowProps) {
+function OrderRow({ order, expanded, onToggle, onStatusChange, onOpenReceipt }: OrderRowProps) {
   const totals = order.totalsByCurrency || {};
 
   return (
@@ -294,6 +327,40 @@ function OrderRow({ order, expanded, onToggle, onStatusChange }: OrderRowProps) 
               value={order.paymentMethod.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
             />
             <InfoBox label="Fecha" value={formatOrderDate(order.createdAt)} />
+          </div>
+
+          <div>
+            <h4 className="text-xs font-medium tracking-wider uppercase text-accent mb-3">
+              Comprobante de pago
+            </h4>
+            {order.receiptImageData ? (
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => onOpenReceipt(order.receiptImageData!)}
+                  className="group relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 hover:border-accent/50 transition-all cursor-zoom-in flex-shrink-0"
+                  title="Click para ampliar"
+                >
+                  <img
+                    src={order.receiptImageData}
+                    alt="Comprobante de pago"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                  />
+                  <span className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 text-white text-xs">🔍 Ampliar</span>
+                  </span>
+                </button>
+                <p className="text-xs text-white/40">
+                  Imagen adjunta por el cliente.
+                  <br />
+                  Click para ampliar y validar el pago.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-white/40 bg-scene-900 border border-white/5 rounded-xl px-4 py-3">
+                Sin comprobante adjunto
+              </p>
+            )}
           </div>
 
           {order.notes && (

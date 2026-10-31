@@ -10,6 +10,7 @@ const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: "📊" },
   { path: "/pedidos", label: "Pedidos", icon: "📋" },
   { path: "/productos", label: "Productos", icon: "📦" },
+  { path: "/medios-pago", label: "Medios de pago", icon: "💳" },
 ];
 
 interface Props {
