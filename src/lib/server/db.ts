@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Product } from "@/lib/products";
 
+const FAST_TIMEOUT_MS = 6000;
+
 let client: SupabaseClient | null = null;
 
 function getSupabase(): SupabaseClient {
@@ -10,7 +12,12 @@ function getSupabase(): SupabaseClient {
     if (!url || !key) {
       throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY environment variable");
     }
-    client = createClient(url, key, { auth: { persistSession: false } });
+    const timeoutFetch: typeof fetch = (input, init) =>
+      fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(FAST_TIMEOUT_MS) });
+    client = createClient(url, key, {
+      auth: { persistSession: false },
+      global: { fetch: timeoutFetch },
+    });
   }
   return client;
 }
